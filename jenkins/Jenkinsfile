@@ -23,6 +23,24 @@ pipeline {
                 }
             }
         }
+
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('test-sonar') {
+                    sh 'mvn sonar:sonar'
+                }
+            }
+        }
+
+        stage("Quality Gate check"){
+            steps{
+                timeout(time: 1, unit: 'HOURS') {
+                waitForQualityGate abortPipeline: true
+              }
+            }
+            
+        }
+        
         stage("Archive"){
             steps{
                archiveArtifacts artifacts: "target/*.jar", fingerprint: true 
